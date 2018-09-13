@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <script>
+        // Helper function that retrieves cookie value.
+        function getCookie(key) {
+            var cookies = document.cookie.split(';').map(c => c.trim());
+            for (var i = 0; i < cookies.length; i++) {
+                if (cookies[i].startsWith(key + '=')) {
+                    return unescape(cookies[i].slice(key.length + 1));
+                }
+            }
+            return '';
+        }
+
+        var username = getCookie('chat_user');
+    </script>
+</body>
+</html>
