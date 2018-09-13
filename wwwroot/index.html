@@ -3,22 +3,85 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
+    <link rel="stylesheet" href="/css/site.css" type="text/css" />
 </head>
 <body>
 
-    <script>
-        // Helper function that retrieves cookie value.
-        function getCookie(key) {
-            var cookies = document.cookie.split(';').map(c => c.trim());
-            for (var i = 0; i < cookies.length; i++) {
-                if (cookies[i].startsWith(key + '=')) {
-                    return unescape(cookies[i].slice(key.length + 1));
-                }
-            }
-            return '';
-        }
+    <div id="chat-box"></div>
 
-        var username = getCookie('chat_user');
+    <input type="text" id="message" />
+    <button id="send-button" type="button">SEND</button>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@aspnet/signalr@1.0.0/dist/browser/signalr.min.js"></script>
+
+    <script>
+        (function () {
+            // Helper function that retrieves cookie value.
+            function getCookie(key) {
+                var cookies = document.cookie.split(';').map(c => c.trim());
+                for (var i = 0; i < cookies.length; i++) {
+                    if (cookies[i].startsWith(key + '=')) {
+                        return unescape(cookies[i].slice(key.length + 1));
+                    }
+                }
+                return '';
+            }
+
+            // Helper function that adds message row to chat box.
+            function addMessage(name, message) {
+                var row = document.createElement('div');
+                row.innerHTML = "<div><strong>" + name + "</strong>:" + message + "</div>";
+                var chatBox = document.getElementById('chat-box');
+                chatBox.appendChild(row);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            var username = getCookie('chat_user');
+
+            var connection = new signalR.HubConnectionBuilder()
+                .withUrl('/chat')
+                .build();
+
+            document.getElementById('send-button').addEventListener('click', function (event) {
+                var input = document.getElementById('message');
+                if (input.value) {
+                    connection
+                        .invoke('onClientSent', input.value)
+                        .catch(function (error) {
+                            addMessage("ERROR", error.message);
+                        });
+                }
+
+                input.value = '';
+                input.focus();
+                event.preventDefault();
+            });
+
+            connection.start()
+                .then(function () {
+
+                }).catch(function (error) {
+                    if (error) {
+                        if (error.message) {
+                            console.error(error.message);
+                        }
+                        if (error.statusCode && error.statusCode === 401) {
+                            addMessage('ERROR', 'You are not logged in. Click <a href="/login">here</a> to login with Microsoft.');
+                        }
+                    }
+                });
+
+            connection.on('onServerSent', function (name, message) {
+                addMessage(name, message);
+            });
+
+            connection.onclose(function (error) {
+                if (error && error.message) {
+                    addMessage("CHAT", error.message);
+                }
+            });
+        }());
+
     </script>
 </body>
 </html>
