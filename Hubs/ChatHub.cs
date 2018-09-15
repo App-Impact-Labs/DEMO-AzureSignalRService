@@ -10,12 +10,12 @@ namespace DEMO_AzureSignalRService.Hubs
     {
         public override Task OnDisconnectedAsync(Exception exception)
         {
-            return Clients.All.SendAsync("onServerSent", "SYSTEM", $"{Context.User.Identity.Name} has disconnected.");
+            return Clients.All.SendAsync("onServerSent", "SERVER", $"{Context.User.Identity.Name} has disconnected.");
         }
 
         public override Task OnConnectedAsync()
         {
-            return Clients.All.SendAsync("onServerSent", "SYSTEM", $"{Context.User.Identity.Name} has connected.");
+            return Clients.All.SendAsync("onServerSent", "SERVER", $"{Context.User.Identity.Name} has connected.");
         }
 
         public void OnClientSent(string message)

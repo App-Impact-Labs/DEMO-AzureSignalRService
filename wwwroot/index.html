@@ -77,7 +77,7 @@
 
             connection.onclose(function (error) {
                 if (error && error.message) {
-                    addMessage("CHAT", error.message);
+                    addMessage("ERROR", error.message);
                 }
             });
         }());
